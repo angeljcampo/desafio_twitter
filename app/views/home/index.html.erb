@@ -1,33 +1,40 @@
-<% if user_signed_in?%> <%= "Welcome #{current_user.nickname}" %> <% end %>
-
+<% if user_signed_in?%> <%= "Welcome @#{current_user.nickname}"%>
+  <%= render 'tweets/form', tweet: @tweet %>
+<% end %>
 
 <h1 class="text-center">Tweets</h1>
 
-
-<div class="row">
-      <% @tweets.each do |tweet| %> 
-      <div class="card my-2 mx-auto col-12">
-        <div class="card-body">
-          <h5 class="card-title"><%= tweet.user.nickname %></h5>
-          <p class="card-text text-center"><%= tweet.tweet_content %></p>
-        </div>
-        <ul class="list-group list-group-flush">
-          <li class="list-group-item">
-          <img src="<%= tweet.user.photo_user%>" class="card-img-top" alt="...">
-          <span class="ml-3">An item</span>
-          </li>
-        </ul>
+<% @tweets.each do |tweet| %> 
+  <div class="card mb-3" >
+    <div class="row no-gutters">
+      <div class="col-md-4">
+        <img src="<%= tweet.user.photo_user%>" alt="..." class="img-fluid">
       </div>
-      <% end %>
+      <div class="col-md-8">
+        <div class="card-body">
+          <h5 class="card-title">@<%= tweet.user.nickname %></h5>
+          <p class="card-text"><%= tweet.tweet_content %></p>
+          <p><%= tweet.likes.count %><%= tweet.likes.count == 1? 'like': "Likes" %></p>
+          <p><% liked_tweet = @tweet.likes.find {|like| like.user_id == current_user.id}  %></p>
+          <% if liked_tweet %>
+          <%= button_to 'Unlike', likes_path(tweet, liked_tweet), method: :delete%>
+          <% else %>
+          <%= button_to 'Like', likes_path(tweet, liked_tweet), method: :post %>
+          <% end %>
+          <%= button_to 'Retweet', tweets_path, method: :post %>
+          <p class="card-text"><small class="text-muted"><%= tweet.created_at %></small></p>
+        </div>
       </div>
     </div>
-</div>
+  </div>
+<% end  %>
 
-
-    
 
 <br />
 
-<div class="row">
-  <div class="col-md-8 offset-md-2"><%= paginate @tweets %></div>
-</div>
+
+    <div class="col-md-8 offset-md-2 text-center t-0 mb-3">
+        <%= link_to_next_page @tweets, 'Show more', class: "btn btn-success text-light"%>
+        <%= link_to_prev_page @tweets, 'Show Previous', class: "btn btn-success text-light"%>
+    </div>
+
