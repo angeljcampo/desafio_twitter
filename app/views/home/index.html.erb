@@ -1,32 +1,54 @@
-<% if user_signed_in?%> <%= "Welcome @#{current_user.nickname}"%>
-  <%= render 'tweets/form', tweet: @tweet %>
-<% end %>
+<div class="text-center">
+    <% if user_signed_in?%> <%= "Welcome @#{current_user.nickname}"%>
+        <%= render 'tweets/form', tweet: @tweet %>
+    <% end %>
+</div>
 
 <h1 class="text-center">Tweets</h1>
 
 <% @tweets.each do |tweet| %> 
-  <div class="card mb-3" >
+    <div class="card card-tweet mb-3 border border-dark" >
+            <% if tweet.original_id != nil %>
+                <%= link_to "Ver tweet original", tweet_path(tweet.original_id),{:class => "ml-4 mt-3 text-light"} %> 
+            <% end %>
     <div class="row no-gutters">
-      <div class="col-md-4">
-        <img src="<%= tweet.user.photo_user%>" alt="..." class="img-fluid">
-      </div>
-      <div class="col-md-8">
+        <div>
         <div class="card-body">
-          <h5 class="card-title">@<%= tweet.user.nickname %></h5>
-          <p class="card-text"><%= tweet.tweet_content %></p>
-          <p><%= tweet.likes.count %><%= tweet.likes.count == 1? 'like': "Likes" %></p>
-          <p><% liked_tweet = @tweet.likes.find {|like| like.user_id == current_user.id}  %></p>
-          <% if liked_tweet %>
-          <%= button_to 'Unlike', likes_path(tweet, liked_tweet), method: :delete%>
-          <% else %>
-          <%= button_to 'Like', likes_path(tweet, liked_tweet), method: :post %>
-          <% end %>
-          <%= button_to 'Retweet', tweets_path, method: :post %>
-          <p class="card-text"><small class="text-muted"><%= tweet.created_at %></small></p>
+            <div class="card-title">
+            <img src="<%= tweet.user.photo_user%>" class="rounded" alt="..." weight="5px" height="40px">
+            @<%= tweet.user.nickname %></div>
+            <div class="card-text text-light"><%= tweet.tweet_content %></div>
+            <div class="my-3"><%= tweet.likes.count %>&nbsp;<%= tweet.likes.count == 1? 'like': "Likes" %>
+            <%= tweet.retweet %>&nbsp;<%= tweet.retweet == 1? 'retweet': "retweets" %></div>
+            <% if user_signed_in? %>
+            <% liked = tweet.likes.find {|like| like.user.id == current_user.id}  %>
+                <% if liked %>
+                    <%= link_to (like_path(tweet.id)), method: :delete do %>
+                        <i class="fas fa-heart fa-2x text-light mb-4"></i>
+                    <% end %> 
+                <% else  %>
+                    <%= link_to (likes_path(tweet.id)), method: :post do %>
+                    <i class="far fa-heart fa-2x text-light"></i>
+                <% end %>
+            <% end  %>
+            <% if tweet.user_id == current_user.id %>
+                <%= link_to (tweet), method: :delete, data: { confirm: "Estas seguro que deseas borrar tu tweet?"} do %>
+                    <i class="fas fa-trash fa-2x text-dark ml-2"></i>
+                <% end %> 
+                <%= link_to (edit_tweet_path(tweet)) do %>
+                    <i class="ml-3 fas fa-pencil-alt fa-2x text-dark"></i>
+                <% end %>
+            <% end %>
+                <%= link_to (retweet_tweet_path(tweet)), method: :post do %>
+                <i class="ml-3 fas fa-exchange-alt fa-2x text-dark"></i>
+                <% end %>
+            <% end %>
+                <p class="card-text"><small><%= link_to time_ago_in_words(tweet.created_at),tweet, class:"text-light"%></small></p>
+
         </div>
-      </div>
+        </div>
     </div>
-  </div>
+</div>
 <% end  %>
 
 

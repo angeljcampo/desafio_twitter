@@ -1,11 +1,11 @@
-<nav class="navbar navbar-success bg-success">
-  <%= link_to "TWITTER", root_path, class: "text-decoration-none text-dark h4"%>
+<nav class="navbar navbar-success">
+  <%= link_to "TWITTER", root_path, class: "text-decoration-none text-light h4"%>
 
   <div class="ml-auto">
 
     <% if user_signed_in?  %>
       <%= link_to 'Log out', destroy_user_session_path,method: :delete, class: "btn
-      btn-light mr-3"  %>
+      btn-light"  %>
       <%= link_to 'Twittear', new_tweet_path, class: "btn
       btn-light mr-3" %>
       <% else %>

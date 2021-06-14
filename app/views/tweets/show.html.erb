@@ -1,19 +1,39 @@
 <p id="notice"><%= notice %></p>
 
-<p>
+<div class="card">
+  <div class="card-header text-center">
+    <span class="h2 text-light">Tweet</span>
+  </div>
+  <div class="card-body">
+
+<p class="text-light">
+  <strong>User:</strong>
+  @<%= @tweet.user %>
+</p>
+
+<p class="text-light">
   <strong>Tweet content:</strong>
   <%= @tweet.tweet_content %>
 </p>
 
-<p>
+<p class="text-light">
   <strong>Retweet:</strong>
   <%= @tweet.retweet %>
 </p>
 
-<p>
-  <strong>User:</strong>
-  <%= @tweet.user %>
-</p>
 
-<%= link_to 'Edit', edit_tweet_path(@tweet) %> |
-<%= link_to 'Back', root_path %>
+
+  </div>
+</div>
+
+<div class="mt-3">
+<p class="text-success font-weight-bolder">User likes</p>
+<% @tweet.likes.each do |like| %>
+  <span><img src="<%= like.user.photo_user%>" alt="..." class="mb-3" weight="5px" height="40px">
+  <%= like.user %><br></span>
+<% end %>
+</div>
+
+<div class="mt-3 text-center">
+<%= link_to 'Back', root_path, class:"btn btn-success" %>
+</div>

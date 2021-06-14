@@ -1,5 +1,5 @@
 class TweetsController < ApplicationController
-  before_action :set_tweet, only: %i[ show edit update destroy ]
+  before_action :set_tweet, only: %i[ show edit update destroy retweet ]
   
   # GET /tweets or /tweets.json
 
@@ -10,8 +10,7 @@ class TweetsController < ApplicationController
 
   # GET /tweets/new
   def new
-    @tweet = Tweet.new
-    
+    @tweet = Tweet.new 
   end
 
   # GET /tweets/1/edit
@@ -50,10 +49,27 @@ class TweetsController < ApplicationController
   def destroy
     @tweet.destroy
     respond_to do |format|
-      format.html { redirect_to tweets_url, notice: "Tweet was successfully destroyed." }
+      format.html { redirect_to root_path, notice: "Tweet was successfully destroyed." }
       format.json { head :no_content }
     end
   end
+
+  def retweet
+    redirect_to root_path, alert: "You can't retweet your own tweet" and return if @tweet.user == current_user
+
+    new_tweet = Tweet.new(tweet_content: @tweet.tweet_content, user: current_user, original_id: @tweet.id)
+    if new_tweet.save
+      if @tweet.retweet.nil?
+        @tweet.update(retweet: @tweet.retweet = 1)
+      else
+        @tweet.update(retweet: @tweet.retweet += 1)
+      end
+      redirect_to root_path, notice: "Your tweet has been created"
+    else
+      redirect_to root_path, notice: "An error has ocurred"
+    end
+  end
+
 
   private
     # Use callbacks to share common setup or constraints between actions.
@@ -65,4 +81,5 @@ class TweetsController < ApplicationController
     def tweet_params
       params.require(:tweet).permit(:tweet_content, :retweet,:user_id)
     end
+
 end
