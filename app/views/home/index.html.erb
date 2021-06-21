@@ -11,7 +11,7 @@
     <% end  %>
 </div>
 
-<% if user_signed_in?%>
+<!<% if user_signed_in?%>
     <div class="dropdown mt-3">
         <button class="btn btn-outline-success text-dark dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
         Suggested friends
@@ -19,14 +19,19 @@
         <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
         <ul class="list-group list-group-flush"> 
             <% @users.each do |user| %>
-            <% if user.id != current_user.id  %>
-            <li class="list-group-item"><%= user.nickname %> <%= link_to follow_user_path(user.id), method: :post do %> <i class="fas fa-user-plus fa-1x text-success"></i><% end %></li>
+                <% if user.id != current_user.id  %>
+                <li class="list-group-item">
+                    <%= user.nickname %> 
+                    <%= link_to follow_user_path(user.id), method: :post do %> 
+                        <i class="fas fa-user-plus fa-1x text-success"></i>
+                    <% end %>
+                </li>
             <% end %>
         <% end %>
 <% end %>
         
 </div>
-</div>
+
 
 <br>
 
@@ -68,7 +73,6 @@
             <% end %>
             <p><%= raw edited_words.join(" ") %></p>
                 
-
                 <div class="my-3"><%= tweet.likes.count %>&nbsp;<%= tweet.likes.count == 1? 'like': "Likes" %>
                     <%= tweet.retweet %>&nbsp;<%= tweet.retweet == 1? 'retweet': "retweets" %></div>
                     <% if user_signed_in? %>
