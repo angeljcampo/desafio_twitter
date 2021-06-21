@@ -3,5 +3,8 @@ class Tweet < ApplicationRecord
   has_many :likes, dependent: :destroy
   validates :tweet_content, presence: true
 
+  scope :tweets_for_me, -> (user) { where(user_id: user.friends.pluck(:friend_id)).or(where(user_id: user))}
+
+
   
 end

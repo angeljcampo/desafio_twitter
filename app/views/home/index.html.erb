@@ -3,53 +3,103 @@
         <%= render 'tweets/form', tweet: @tweet %>
     <% end %>
 </div>
+<div class="ml-auto mr-2">
+    <p class="mb-0">Busca lo que mas te guste en tus tweets favoritos</p>
+    <%= form_tag root_path, method: :get do %>
+        <%= text_field_tag :q, nil, class:"btn btn-outline-success my-2 my-sm-0"  %>
+        <%= submit_tag "search", class:"btn btn-outline-success text-dark my-2 my-sm-0" %>
+    <% end  %>
+</div>
 
-<h1 class="text-center">Tweets</h1>
+<% if user_signed_in?%>
+    <div class="dropdown mt-3">
+        <button class="btn btn-outline-success text-dark dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        Suggested friends
+        </button>
+        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+        <ul class="list-group list-group-flush"> 
+            <% @users.each do |user| %>
+            <% if user.id != current_user.id  %>
+            <li class="list-group-item"><%= user.nickname %> <%= link_to follow_user_path(user.id), method: :post do %> <i class="fas fa-user-plus fa-1x text-success"></i><% end %></li>
+            <% end %>
+        <% end %>
+<% end %>
+        
+</div>
+</div>
 
-<% @tweets.each do |tweet| %> 
-    <div class="card card-tweet mb-3 border border-dark" >
-            <% if tweet.original_id != nil %>
-                <%= link_to "Ver tweet original", tweet_path(tweet.original_id),{:class => "ml-4 mt-3 text-light"} %> 
-            <% end %>
-    <div class="row no-gutters">
-        <div>
-        <div class="card-body">
-            <div class="card-title">
-            <img src="<%= tweet.user.photo_user%>" class="rounded" alt="..." weight="5px" height="40px">
-            @<%= tweet.user.nickname %></div>
-            <div class="card-text text-light"><%= tweet.tweet_content %></div>
-            <div class="my-3"><%= tweet.likes.count %>&nbsp;<%= tweet.likes.count == 1? 'like': "Likes" %>
-            <%= tweet.retweet %>&nbsp;<%= tweet.retweet == 1? 'retweet': "retweets" %></div>
-            <% if user_signed_in? %>
-            <% liked = tweet.likes.find {|like| like.user.id == current_user.id}  %>
-                <% if liked %>
-                    <%= link_to (like_path(tweet.id)), method: :delete do %>
-                        <i class="fas fa-heart fa-2x text-light mb-4"></i>
-                    <% end %> 
-                <% else  %>
-                    <%= link_to (likes_path(tweet.id)), method: :post do %>
-                    <i class="far fa-heart fa-2x text-light"></i>
-                <% end %>
-            <% end  %>
-            <% if tweet.user_id == current_user.id %>
-                <%= link_to (tweet), method: :delete, data: { confirm: "Estas seguro que deseas borrar tu tweet?"} do %>
-                    <i class="fas fa-trash fa-2x text-dark ml-2"></i>
-                <% end %> 
-                <%= link_to (edit_tweet_path(tweet)) do %>
-                    <i class="ml-3 fas fa-pencil-alt fa-2x text-dark"></i>
-                <% end %>
-            <% end %>
-                <%= link_to (retweet_tweet_path(tweet)), method: :post do %>
-                <i class="ml-3 fas fa-exchange-alt fa-2x text-dark"></i>
-                <% end %>
-            <% end %>
-                <p class="card-text"><small><%= link_to time_ago_in_words(tweet.created_at),tweet, class:"text-light"%></small></p>
+<br>
 
-        </div>
+    <% @tweets.each do |tweet| %> 
+        <div class="card card-tweet mb-3 border border-dark" >
+                <% if tweet.original_id != nil %>
+                    <%= link_to "Ver tweet original", tweet_path(tweet.original_id),{:class => "ml-4 mt-3 text-light"} %> 
+                <% end %>
+        <div class="row no-gutters">
+            <div>
+            <div class="card-body">
+                <div class="card-title">
+                <img src="<%= tweet.user.photo_user%>" class="rounded" alt="..." weight="5px" height="40px">
+                @<%= tweet.user.nickname %>
+                
+                <% if user_signed_in? %>
+                    <% if tweet.user_id != current_user.id %>
+                        <% followed = @friends.find{|friend| friend.user_id == current_user.id && friend.friend_id == tweet.user_id  } %>
+                        <% if followed %>
+                                
+                            <%= link_to (unfollow_user_path(tweet.user_id)), method: :delete do %>
+                                <i class="fas fa-user-plus fa-1x text-danger"></i>
+                            <% end %> 
+                        <% else  %>
+                            <%= link_to (follow_user_path(tweet.user_id)), method: :post do %>
+                                <i class="fas fa-user-plus fa-1x text-light"></i>
+                            <% end %>
+                        <% end %>
+                    <% end %>
+                <% end %></div>
+                
+            <% hashtag = tweet.tweet_content.split(" ") %>
+            <% edited_words = [] %>
+            <% hashtag.each do |element| %>
+                <% if element.start_with?("#")%>
+                    <% element = link_to element, controller: "home", q: element %>
+                <% end %>
+                <% edited_words.push(element) %>
+            <% end %>
+            <p><%= raw edited_words.join(" ") %></p>
+                
+
+                <div class="my-3"><%= tweet.likes.count %>&nbsp;<%= tweet.likes.count == 1? 'like': "Likes" %>
+                    <%= tweet.retweet %>&nbsp;<%= tweet.retweet == 1? 'retweet': "retweets" %></div>
+                    <% if user_signed_in? %>
+                        <% liked = tweet.likes.find {|like| like.user.id == current_user.id}  %>
+                        <% if liked %>
+                            <%= link_to (like_path(tweet.id)), method: :delete do %>
+                                <i class="fas fa-heart fa-2x text-light mb-4"></i>
+                            <% end %> 
+                        <% else  %>
+                            <%= link_to (likes_path(tweet.id)), method: :post do %>
+                            <i class="far fa-heart fa-2x text-light"></i>
+                        <% end %>
+                    <% end  %>
+                    <% if tweet.user_id == current_user.id %>
+                        <%= link_to (tweet), method: :delete, data: { confirm: "Estas seguro que deseas borrar tu tweet?"} do %>
+                            <i class="fas fa-trash fa-2x text-dark ml-2"></i>
+                        <% end %> 
+                        <%= link_to (edit_tweet_path(tweet)) do %>
+                            <i class="ml-3 fas fa-pencil-alt fa-2x text-dark"></i>
+                        <% end %>
+                    <% end %>
+                        <%= link_to (retweet_tweet_path(tweet)), method: :post do %>
+                        <i class="ml-3 fas fa-exchange-alt fa-2x text-dark"></i>
+                        <% end %>
+                    <% end %>
+                        <p class="card-text"><small><%= link_to time_ago_in_words(tweet.created_at),tweet, class:"text-light"%></small></p>
+                </div>
+            </div>
         </div>
     </div>
-</div>
-<% end  %>
+    <% end  %>
 
 
 <br />

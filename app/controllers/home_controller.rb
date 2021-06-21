@@ -1,28 +1,22 @@
 class HomeController < ApplicationController
-skip_before_action :authenticate_user!
+  skip_before_action :authenticate_user!
+
   def index
-    
-    @tweets = Tweet.order("created_at DESC")
-    @tweets = Kaminari.paginate_array(@tweets).page(params[:page]).per(50)
-    @tweet = Tweet.new
-    
-  end
-
-  def retweet
-    redirect_to root_path, alert: 'No es posible hacer retweet' and return if @tweet.user == current_user
-    retweeted = Tweet.new(content: @tweet.tweet_content)
-    retweeted.user = current_user
-
-    if retweeted.save
-      if @tweet.retweet.nil?
-        @tweet.update(retweet: @tweet.retweet = 1)
-      else
-        @tweet.update(retweet: @tweet.retweet += 1)
+    if user_signed_in?
+      @tweets = Tweet.tweets_for_me(current_user).order("created_at DESC")
+      if params[:q]
+        @tweets = Tweet.finder(params[:q]).order("created_at DESC") 
       end
-        redirect_to root_path, notice: 'Retweet was posted successfully.'
-      else
-        redirect_to root_path, alert: "Unable to retweet."
+    else
+      @tweets = Tweet.order("created_at DESC")
+      if params[:q]
+        @tweets = Tweet.finder(params[:q]).order("created_at DESC")
+      end
     end
+    @tweet = Tweet.new
+    @friends = Friend.all
+    @tweets = Kaminari.paginate_array(@tweets).page(params[:page]).per(50)
+    @users = User.all
   end
 
 
