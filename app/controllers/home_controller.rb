@@ -5,7 +5,7 @@ class HomeController < ApplicationController
     if user_signed_in?
       @tweets = Tweet.tweets_for_me(current_user).order("created_at DESC")
       if params[:q]
-        @tweets = Tweet.finder(params[:q]).order("created_at DESC") 
+        @tweets = Tweet.find(params[:q]).order("created_at DESC") 
       end
     else
       @tweets = Tweet.order("created_at DESC")
