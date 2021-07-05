@@ -10,7 +10,7 @@ class HomeController < ApplicationController
     else
       @tweets = Tweet.order("created_at DESC")
       if params[:q]
-        @tweets = Tweet.finder(params[:q]).order("created_at DESC")
+        @tweets = Tweet.find(params[:q]).order("created_at DESC")
       end
     end
     @tweet = Tweet.new
