@@ -2,6 +2,14 @@ Rails.application.routes.draw do
   devise_for :admin_users, ActiveAdmin::Devise.config
   ActiveAdmin.routes(self)
 
+  namespace :api do
+    namespace :v1 do
+      get "/news", to: "news#news"
+      get "/:fecha1/:fecha2", to: "news#ranged"
+      post "/create", to: "news#create"
+    end
+  end
+
   resources :tweets do
     member do
       post 'retweet'
